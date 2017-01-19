@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+  <head>
+    <title>HDFS Size calculator</title>
+
+    <style>
+      article { margin-bottom: 20px; }
+    </style>
+  </head>
+  <body>
+    <h3>HDFS Size calculator</h3>
+
+    <section>
+
+      <article>
+        <strong>HDFS Cluster sizing</strong>
+        <pre>
+          Formula: <code>H = C * R * S/(1-i) * 120%</code>
+          C - Compression Ratio
+          R - Replication factor
+          S - Initial data size
+          i - Intermediate data factor, typically 1/3 or 1/4 (temporary space for mapreduce)
+          20% - For the underlying OS and filesystem
+        </pre>
+
+        <form onchange="update();">
+          Compression ratio:
+          <select id="C">
+            <option value="1">None</option>
+            <option value="0.42">Snappy (42%)</option>
+            <option value="0.44">LZ4 (44%)</option>
+            <option value="0.47">LZO (47%)</option>
+            <option value="0.64">Zlib (64%)</option>
+            <option value="0.71">Bzip2 (71%)</option>
+          </select>
+          (Note: These figures are from a <a href="http://www.slideshare.net/Hadoop_Summit/kamat-singh-june27425pmroom210cv2">2013 Yahoo Presentation</a>)
+          <br />
+
+          Replication factor: <input type="text" id="R" value="3" /><br />
+          Initial Data Size: <input type="text" id="S" /> (Any units) <br />
+          Intermediate data factor: <input type="text" id="i" value="0.25" /><br />
+          OS and Filesystem reserve: <input type="text" id="extra" value="1.2" /><br />
+        </form>
+
+        <br />
+        Estimation: <input type="text" id="estimate" />
+      </article>
+
+      <article>
+        <strong>Number of Datanodes</strong>
+
+        <pre>
+          Formula: H/d
+          d - Disk space available per datanode
+          Note: The variables are the same as the previous formula.
+        </pre>
+
+        <form onchange="update();">
+          Space per datanode: <input type="text" id="n" /> (Make this the same units as <code>S</code> from above.)
+        </form>
+
+        <br />
+        Estimation: <input type="text" id="estimate2" />
+      </article>
+
+    </section>
+
+    <script type="text/javascript">
+      function get(name) {
+        return parseFloat(document.querySelector("#" + name).value, 10);
+      }
+
+      function update() {
+        var C = get("C");
+        var R = get("R");
+        var S = get("S");
+        var i = get("i");
+        var extra = get("extra");
+
+        console.log("C" + C);
+        console.log("R" + R);
+        console.log("S" + S);
+        console.log("i" + i);
+        console.log("extra" + extra);
+
+        var out = document.querySelector("#estimate");
+        var est = C * R * (S * (1 - i)) * extra;
+        console.log("est" + est);
+        if (!isNaN(est)) {
+          out.value = Math.round(est);
+        }
+
+        // Update the datanode count estimate
+        var n = get("n");
+        var out2 = document.querySelector("#estimate2");
+        var est2 = est / n;
+        if (!isNaN(est2)) {
+          out2.value = est2.toFixed(2);
+        }
+      }
+    </script>
+
+  </body>
+</html>
