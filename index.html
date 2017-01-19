@@ -15,12 +15,12 @@
       <article>
         <strong>HDFS Cluster sizing</strong>
         <pre>
-          Formula: <code>H = C * R * S/(1-i) * 120%</code>
+          Formula: <code>H = C * R * S/(1-i) * (1 + r)</code>
           C - Compression Ratio
           R - Replication factor
           S - Initial data size
           i - Intermediate data factor, typically 1/3 or 1/4 (temporary space for mapreduce)
-          20% - For the underlying OS and filesystem
+          r - Reserved ratio for the underlying OS and filesystem
         </pre>
 
         <form onchange="update();">
@@ -37,13 +37,13 @@
           <br />
 
           Replication factor: <input type="text" id="R" value="3" /><br />
-          Initial Data Size: <input type="text" id="S" /> (Any units) <br />
+          Initial Data Size: <input type="text" id="S" /> TB <br />
           Intermediate data factor: <input type="text" id="i" value="0.25" /><br />
-          OS and Filesystem reserve: <input type="text" id="extra" value="1.2" /><br />
+          OS and Filesystem reserve: <input type="text" id="r" value="0.2" /><br />
         </form>
 
         <br />
-        Estimation: <input type="text" id="estimate" />
+        Approximate storage: <input type="text" id="estimate" /> TB
       </article>
 
       <article>
@@ -56,13 +56,47 @@
         </pre>
 
         <form onchange="update();">
-          Space per datanode: <input type="text" id="n" /> (Make this the same units as <code>S</code> from above.)
+          Space per datanode: <input type="text" id="d" /> (Make this the same units as <code>S</code> from above.)
         </form>
 
         <br />
-        Estimation: <input type="text" id="estimate2" />
+        Approximate number of datanodes needed: <input type="text" id="estimate2" />
       </article>
 
+
+      <article>
+        <strong>Growth Prediction</strong>
+
+        <pre>
+          Formula: H2 = ((D * R * 30) + M)^12 / (d * (1 - (i + r)))
+          D - Daily data added
+          R - Replication factor
+          M - Monthly growth rate
+
+          Notes:
+          - Using 30 days in a month
+          - Using 12 months
+        </pre>
+
+        <form onchange="update();">
+          Daily growth (size) <input type="text" id="D" /> GB<br />
+          Monthly growth rate <input type="text" id="M" value="0.05" /> <br />
+        </form>
+
+        <br />
+        Approximate total cluster size in 1 year: <input type="text" id="estimate3" /> TB <br />
+        Approximate total number of datanodes needed: <input type="text" id="estimate4" /><br />
+      </article>
+
+    </section>
+
+    <section>
+      <strong>Sources</strong>
+      <ul>
+        <li><a href="http://hadooptutorial.info/formula-to-calculate-hdfs-nodes-storage/">http://hadooptutorial.info/formula-to-calculate-hdfs-nodes-storage/</a></li>
+        <li><a href="https://www.linkedin.com/pulse/how-calculate-hadoop-cluster-size-saket-jain">https://www.linkedin.com/pulse/how-calculate-hadoop-cluster-size-saket-jain</a></li>
+        <li><a href="https://www.packtpub.com/books/content/sizing-and-configuring-your-hadoop-cluster">https://www.packtpub.com/books/content/sizing-and-configuring-your-hadoop-cluster</a></li>
+      </ul>
     </section>
 
     <script type="text/javascript">
@@ -75,27 +109,44 @@
         var R = get("R");
         var S = get("S");
         var i = get("i");
-        var extra = get("extra");
+        var r = get("r");
 
         console.log("C" + C);
         console.log("R" + R);
         console.log("S" + S);
         console.log("i" + i);
-        console.log("extra" + extra);
+        console.log("r" + r);
 
         var out = document.querySelector("#estimate");
-        var est = C * R * (S * (1 - i)) * extra;
+        var est = C * R * (S * (1 - i)) * (1 + r);
         console.log("est" + est);
         if (!isNaN(est)) {
           out.value = Math.round(est);
         }
 
         // Update the datanode count estimate
-        var n = get("n");
+        var d = get("d");
         var out2 = document.querySelector("#estimate2");
-        var est2 = est / n;
+        var est2 = est / d;
         if (!isNaN(est2)) {
-          out2.value = est2.toFixed(2);
+          out2.value = est2.toFixed(1);
+        }
+
+        // +1 year size
+        var D = get("D");
+        var M = get("M");
+        var out = document.querySelector("#estimate3");
+        var monthly = ((D * R * 30) * (1 + M)) / 1000; // Convert GB to TB
+        var est3 = (monthly * (1 + M)^12);
+        if (!isNaN(est3)) {
+          out.value = S + est3;
+        }
+
+        // +1 datanode count
+        var out = document.querySelector("#estimate4");
+        var est4 = est3 / (d * (1 - (i + r)));
+        if (!isNaN(est4)) {
+          out.value = (est2 + est4).toFixed(1);
         }
       }
     </script>
