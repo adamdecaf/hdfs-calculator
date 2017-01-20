@@ -129,17 +129,20 @@
         var D = get("D");
         var M = get("M");
         var out = document.querySelector("#estimate3");
-        var monthly = ((C * D * R * 30) * (1 + M)) / 1000.0; // Convert GB to TB
+
+        var monthly = (D*30)*(1+M);
+        var annual = monthly * Math.pow(1+M, 12);
+
         var est3 = Math.pow(monthly * (1 + M), 12);
         if (!isNaN(est3)) {
-          out.value = (est + est3).toFixed(1);
+          out.value = (est + annual).toFixed(1);
         }
 
         // +1 datanode count
         var out = document.querySelector("#estimate4");
-        var est4 = (est + est3) / (d * (1 - (i + r)));
+        var est4 = (est + annual) / (d * (1-(i+r)));
         if (!isNaN(est4)) {
-          out.value = est4.toFixed(1);
+          out.value = (est2 + est4).toFixed(1);
         }
       }
     </script>
