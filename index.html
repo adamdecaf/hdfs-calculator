@@ -137,9 +137,9 @@
 
         // +1 datanode count
         var out = document.querySelector("#estimate4");
-        var est4 = est3 / (d * (1 - (i + r)));
+        var est4 = (est + est3) / (d * (1 - (i + r)));
         if (!isNaN(est4)) {
-          out.value = (est2 + est4).toFixed(1);
+          out.value = est4.toFixed(1);
         }
       }
     </script>
