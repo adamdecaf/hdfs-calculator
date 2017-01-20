@@ -136,7 +136,7 @@
         var D = get("D");
         var M = get("M");
         var out = document.querySelector("#estimate3");
-        var monthly = ((D * R * 30) * (1 + M)) / 1000; // Convert GB to TB
+        var monthly = ((C * D * R * 30) * (1 + M)) / 1000; // Convert GB to TB
         var est3 = (monthly * (1 + M)^12);
         if (!isNaN(est3)) {
           out.value = S + est3;
