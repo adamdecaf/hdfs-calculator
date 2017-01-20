@@ -111,15 +111,8 @@
         var i = get("i");
         var r = get("r");
 
-        console.log("C" + C);
-        console.log("R" + R);
-        console.log("S" + S);
-        console.log("i" + i);
-        console.log("r" + r);
-
         var out = document.querySelector("#estimate");
         var est = C * R * (S * (1 - i)) * (1 + r);
-        console.log("est" + est);
         if (!isNaN(est)) {
           out.value = est.toFixed(1);
         }
