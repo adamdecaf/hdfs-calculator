@@ -2,6 +2,8 @@
 
 A simple calculator for HDFS sizing.
 
+[Demo](http://ashannon.us/hdfs-calculator/)
+
 ## References
 
 - http://hadooptutorial.info/formula-to-calculate-hdfs-nodes-storage/
