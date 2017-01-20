@@ -15,7 +15,7 @@
       <article>
         <strong>HDFS Cluster sizing</strong>
         <pre>
-          Formula: <code>H = C * R * S/(1+i) * (1 + r)</code>
+          Formula: <code>H = C * R * S/(1-i) * (1 + r)</code>
           C - Compression Ratio
           R - Replication factor
           S - Initial data size
@@ -118,7 +118,7 @@
         console.log("r" + r);
 
         var out = document.querySelector("#estimate");
-        var est = C * R * (S * (1 + i)) * (1 + r);
+        var est = C * R * (S * (1 - i)) * (1 + r);
         console.log("est" + est);
         if (!isNaN(est)) {
           out.value = est.toFixed(1);
